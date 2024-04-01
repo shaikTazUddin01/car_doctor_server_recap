@@ -29,6 +29,16 @@ const services = database.collection("services");
 const BookingServices = database.collection('bookingServices')
 
 //booking
+// delete
+app.delete('/booking/:id', async (req, res) => {
+  const id = req.params.id;
+  console.log(id)
+  const query = { _id: new ObjectId(id) }
+  const result = await BookingServices.deleteOne(query)
+  res.send(result)
+  console.log(result)
+})
+// post booking data
 app.post('/booking', async (req, res) => {
   const bookingData = req.body;
   const result = await BookingServices.insertOne(bookingData)
