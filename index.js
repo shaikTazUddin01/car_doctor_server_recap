@@ -1,10 +1,10 @@
-const express=require('express')
-const cors=require('cors')
+const express = require('express')
+const cors = require('cors')
 require('dotenv').config()
-const app=express()
+const app = express()
 
 //port
-const port =process.env.PORT || 5000
+const port = process.env.PORT || 5000
 //middleware
 app.use(cors())
 app.use(express.json())
@@ -15,31 +15,52 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
-    serverApi: {
-      version: ServerApiVersion.v1,
-      strict: true,
-      deprecationErrors: true,
-    }
-  });
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
 
 
 // Get the database and collection on which to run the operation
 const database = client.db("carDoctor");
 const services = database.collection("services");
+const BookingServices = database.collection('bookingServices')
 
-app.get('/services',async(req,res)=>{
-    const result=await services.find().toArray()
-    res.send(result)
+//booking
+app.post('/booking', async (req, res) => {
+  const bookingData = req.body;
+  const result = await BookingServices.insertOne(bookingData)
+  res.send(result)
+  // console.log(bookingData)
+
+})
+app.get('/booking', async (req, res) => {
+  console.log(req.query)
+  let query = {}
+  if (req.query.email) {
+    query = {
+      email: req.query.email
+    }
+  }
+  const result = await BookingServices.find(query).toArray()
+  res.send(result)
+})
+//services
+app.get('/services', async (req, res) => {
+  const result = await services.find().toArray()
+  res.send(result)
 })
 // get specific service data
-app.get('/services/:id',async(req,res)=>{
-  const id=req.params.id
-  const query={_id : new ObjectId(id)}
+app.get('/services/:id', async (req, res) => {
+  const id = req.params.id
+  const query = { _id: new ObjectId(id) }
   const options = {
-    
-    projection: { _id: 1, title: 1, img: 1,price :1 , description :1 },
+
+    projection: { _id: 1, title: 1, img: 1, price: 1, description: 1 },
   };
-  const result =await services.findOne(query,options)
+  const result = await services.findOne(query, options)
   res.send(result)
 })
 
@@ -60,11 +81,11 @@ run().catch(console.dir);
 
 
 //root connection
-app.get('/',(req,res)=>{
-    res.send("server is connecting")
+app.get('/', (req, res) => {
+  res.send("server is connecting")
 })
 
 //running port
-app.listen(port,()=>{
-    console.log("running port is:",port)
+app.listen(port, () => {
+  console.log("running port is:", port)
 })
