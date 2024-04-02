@@ -29,6 +29,21 @@ const services = database.collection("services");
 const BookingServices = database.collection('bookingServices')
 
 //booking
+//update
+app.patch('/booking/:id',async(req,res)=>{
+  const id=req.params.id
+  const data=req.body;
+  const filter={_id: new ObjectId(id)}
+  const updateDoc={
+    $set:{
+      status:data?.status
+    }
+  }
+  const result=await BookingServices.updateOne(filter,updateDoc)
+
+  res.send(result)
+  console.log(result)
+})
 // delete
 app.delete('/booking/:id', async (req, res) => {
   const id = req.params.id;
@@ -36,7 +51,7 @@ app.delete('/booking/:id', async (req, res) => {
   const query = { _id: new ObjectId(id) }
   const result = await BookingServices.deleteOne(query)
   res.send(result)
-  console.log(result)
+  // console.log(result)
 })
 // post booking data
 app.post('/booking', async (req, res) => {
